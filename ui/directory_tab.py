@@ -5,6 +5,7 @@ import customtkinter as ctk
 from tkinter import messagebox
 from utils import read_file, save_string_to_txt, clear_file_content
 from ui.context_menu import TextWidgetContextMenu
+from ui.font_config import get_font
 
 def build_directory_tab(self):
     self.directory_tab = self.tabview.add("Chapter Blueprint")
@@ -12,16 +13,16 @@ def build_directory_tab(self):
     self.directory_tab.rowconfigure(1, weight=1)
     self.directory_tab.columnconfigure(0, weight=1)
 
-    load_btn = ctk.CTkButton(self.directory_tab, text="加载 Novel_directory.txt", command=self.load_chapter_blueprint, font=("Microsoft YaHei", 12))
+    load_btn = ctk.CTkButton(self.directory_tab, text="加载 Novel_directory.txt", command=self.load_chapter_blueprint, font=get_font("button"))
     load_btn.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
-    self.directory_word_count_label = ctk.CTkLabel(self.directory_tab, text="字数：0", font=("Microsoft YaHei", 12))
+    self.directory_word_count_label = ctk.CTkLabel(self.directory_tab, text="字数：0", font=get_font("button"))
     self.directory_word_count_label.grid(row=0, column=1, padx=5, pady=5, sticky="w")
 
-    save_btn = ctk.CTkButton(self.directory_tab, text="保存修改", command=self.save_chapter_blueprint, font=("Microsoft YaHei", 12))
+    save_btn = ctk.CTkButton(self.directory_tab, text="保存修改", command=self.save_chapter_blueprint, font=get_font("button"))
     save_btn.grid(row=0, column=2, padx=5, pady=5, sticky="e")
 
-    self.directory_text = ctk.CTkTextbox(self.directory_tab, wrap="word", font=("Microsoft YaHei", 12))
+    self.directory_text = ctk.CTkTextbox(self.directory_tab, wrap="word", font=get_font("textbox"))
     
     def update_word_count(event=None):
         text = self.directory_text.get("0.0", "end")

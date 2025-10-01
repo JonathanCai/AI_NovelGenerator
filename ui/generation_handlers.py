@@ -19,6 +19,7 @@ from novel_generator import (
     build_chapter_prompt
 )
 from consistency_checker import check_consistency
+from ui.font_config import get_font
 
 def generate_novel_architecture_ui(self):
     filepath = self.filepath_var.get().strip()
@@ -190,11 +191,11 @@ def generate_chapter_draft_ui(self):
                 dialog = ctk.CTkToplevel(self.master)
                 dialog.title("当前章节请求提示词（可编辑）")
                 dialog.geometry("600x400")
-                text_box = ctk.CTkTextbox(dialog, wrap="word", font=("Microsoft YaHei", 12))
+                text_box = ctk.CTkTextbox(dialog, wrap="word", font=get_font("button"))
                 text_box.pack(fill="both", expand=True, padx=10, pady=10)
 
                 # 字数统计标签
-                wordcount_label = ctk.CTkLabel(dialog, text="字数：0", font=("Microsoft YaHei", 12))
+                wordcount_label = ctk.CTkLabel(dialog, text="字数：0", font=get_font("button"))
                 wordcount_label.pack(side="left", padx=(10,0), pady=5)
                 
                 # 插入角色内容
@@ -260,9 +261,9 @@ def generate_chapter_draft_ui(self):
                     result["prompt"] = None
                     dialog.destroy()
                     event.set()
-                btn_confirm = ctk.CTkButton(button_frame, text="确认使用", font=("Microsoft YaHei", 12), command=on_confirm)
+                btn_confirm = ctk.CTkButton(button_frame, text="确认使用", font=get_font("button"), command=on_confirm)
                 btn_confirm.pack(side="left", padx=10)
-                btn_cancel = ctk.CTkButton(button_frame, text="取消请求", font=("Microsoft YaHei", 12), command=on_cancel)
+                btn_cancel = ctk.CTkButton(button_frame, text="取消请求", font=get_font("button"), command=on_cancel)
                 btn_cancel.pack(side="left", padx=10)
                 # 若用户直接关闭弹窗，则调用 on_cancel 处理
                 dialog.protocol("WM_DELETE_WINDOW", on_cancel)
@@ -792,7 +793,7 @@ def show_plot_arcs_ui(self):
     top = ctk.CTkToplevel(self.master)
     top.title("剧情要点/未解决冲突")
     top.geometry("600x400")
-    text_area = ctk.CTkTextbox(top, wrap="word", font=("Microsoft YaHei", 12))
+    text_area = ctk.CTkTextbox(top, wrap="word", font=get_font("button"))
     text_area.pack(fill="both", expand=True, padx=10, pady=10)
     text_area.insert("0.0", arcs_text)
     text_area.configure(state="disabled")

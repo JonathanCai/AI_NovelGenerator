@@ -8,6 +8,7 @@ import customtkinter as ctk
 
 from config_manager import load_config, save_config
 from tooltips import tooltips
+from ui.font_config import get_font
 
 import os
 
@@ -29,7 +30,7 @@ def create_label_with_help(self, parent, label_text, tooltip_key, row, column,
         text="?",
         width=22,
         height=22,
-        font=("Microsoft YaHei", 10),
+        font=get_font("small"),
         command=lambda: messagebox.showinfo("参数说明", tooltips.get(tooltip_key, "暂无说明"))
     )
     btn.pack(side="left", padx=3)
@@ -268,7 +269,7 @@ def build_ai_config_tab(self):
         values=config_names,
         variable=self.interface_config_var,
         command=on_config_selected,
-        font=("Microsoft YaHei", 12)
+        font=get_font("default")
     )
     interface_config_dropdown.grid(row=0, column=1, columnspan=2, padx=5, pady=5, sticky="nsew")
 
@@ -284,7 +285,7 @@ def build_ai_config_tab(self):
         btn_frame, 
         text="➕ 新增", 
         command=add_new_config,
-        font=("Microsoft YaHei", 12),
+        font=get_font("default"),
         fg_color="#2E8B57",
         width=80
     )
@@ -294,7 +295,7 @@ def build_ai_config_tab(self):
         btn_frame, 
         text="✏️ 重命名", 
         command=rename_current_config,
-        font=("Microsoft YaHei", 12),
+        font=get_font("default"),
         fg_color="#DAA520",
         width=80
     )
@@ -304,7 +305,7 @@ def build_ai_config_tab(self):
         btn_frame, 
         text="🗑️ 删除", 
         command=delete_current_config,
-        font=("Microsoft YaHei", 12),
+        font=get_font("default"),
         fg_color="#8B0000",
         width=80
     )
@@ -314,7 +315,7 @@ def build_ai_config_tab(self):
         btn_frame, 
         text="💾 保存", 
         command=save_current_config,
-        font=("Microsoft YaHei", 12),
+        font=get_font("default"),
         fg_color="#1E90FF",
         width=80
     )
@@ -328,7 +329,7 @@ def build_ai_config_tab(self):
     api_key_entry = ctk.CTkEntry(
         self.ai_config_tab, 
         textvariable=self.api_key_var,
-        font=("Microsoft YaHei", 12),
+        font=get_font("default"),
         show="*"
     )
     api_key_entry.grid(row=row_start, column=1, columnspan=2, padx=5, pady=5, sticky="nsew")
@@ -339,7 +340,7 @@ def build_ai_config_tab(self):
     base_url_entry = ctk.CTkEntry(
         self.ai_config_tab, 
         textvariable=self.base_url_var,
-        font=("Microsoft YaHei", 12)
+        font=get_font("default")
     )
     base_url_entry.grid(row=row_start+1, column=1, columnspan=2, padx=5, pady=5, sticky="nsew")
     
@@ -351,7 +352,7 @@ def build_ai_config_tab(self):
         self.ai_config_tab,
         values=interface_options,
         variable=self.interface_format_var,
-        font=("Microsoft YaHei", 12)
+        font=get_font("default")
     )
     interface_dropdown.grid(row=row_start+2, column=1, columnspan=2, padx=5, pady=5, sticky="nsew")
     
@@ -361,7 +362,7 @@ def build_ai_config_tab(self):
     model_name_entry = ctk.CTkEntry(
         self.ai_config_tab, 
         textvariable=self.model_name_var,
-        font=("Microsoft YaHei", 12)
+        font=get_font("default")
     )
     model_name_entry.grid(row=row_start+3, column=1, columnspan=2, padx=5, pady=5, sticky="nsew")
     
@@ -382,7 +383,7 @@ def build_ai_config_tab(self):
     self.temp_value_label = ctk.CTkLabel(
         self.ai_config_tab, 
         text=f"{self.temperature_var.get():.2f}",
-        font=("Microsoft YaHei", 12)
+        font=get_font("default")
     )
     self.temp_value_label.grid(row=row_start+4, column=2, padx=5, pady=5, sticky="w")
     
@@ -403,7 +404,7 @@ def build_ai_config_tab(self):
     self.max_tokens_value_label = ctk.CTkLabel(
         self.ai_config_tab, 
         text=str(self.max_tokens_var.get()),
-        font=("Microsoft YaHei", 12)
+        font=get_font("default")
     )
     self.max_tokens_value_label.grid(row=row_start+5, column=2, padx=5, pady=5, sticky="w")
     
@@ -424,7 +425,7 @@ def build_ai_config_tab(self):
     self.timeout_value_label = ctk.CTkLabel(
         self.ai_config_tab, 
         text=str(self.timeout_var.get()),
-        font=("Microsoft YaHei", 12)
+        font=get_font("default")
     )
     self.timeout_value_label.grid(row=row_start+6, column=2, padx=5, pady=5, sticky="w")
     
@@ -433,7 +434,7 @@ def build_ai_config_tab(self):
         self.ai_config_tab, 
         text="测试配置", 
         command=self.test_llm_config,
-        font=("Microsoft YaHei", 12)
+        font=get_font("default")
     )
     test_btn.grid(row=row_start+7, column=0, columnspan=3, padx=5, pady=5, sticky="ew")
 
@@ -472,7 +473,7 @@ def build_ai_config_tab(self):
         values=config_names,
         variable=self.interface_config_var,
         command=on_config_selected,
-        font=("Microsoft YaHei", 12)
+        font=get_font("default")
     )
     interface_config_dropdown.grid(row=0, column=1, columnspan=2, padx=5, pady=5, sticky="nsew")
 
@@ -515,35 +516,35 @@ def build_embeddings_config_tab(self):
     self.embeddings_config_tab.grid_columnconfigure(2, weight=0)
 
     # 1) Embedding API Key
-    create_label_with_help(self, parent=self.embeddings_config_tab, label_text="Embedding API Key:", tooltip_key="embedding_api_key", row=0, column=0, font=("Microsoft YaHei", 12))
-    emb_api_key_entry = ctk.CTkEntry(self.embeddings_config_tab, textvariable=self.embedding_api_key_var, font=("Microsoft YaHei", 12), show="*")
+    create_label_with_help(self, parent=self.embeddings_config_tab, label_text="Embedding API Key:", tooltip_key="embedding_api_key", row=0, column=0, font=get_font("default"))
+    emb_api_key_entry = ctk.CTkEntry(self.embeddings_config_tab, textvariable=self.embedding_api_key_var, font=get_font("default"), show="*")
     emb_api_key_entry.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
 
     # 2) Embedding 接口格式
-    create_label_with_help(self, parent=self.embeddings_config_tab, label_text="Embedding 接口格式:", tooltip_key="embedding_intexrface_format", row=1, column=0, font=("Microsoft YaHei", 12))
+    create_label_with_help(self, parent=self.embeddings_config_tab, label_text="Embedding 接口格式:", tooltip_key="embedding_intexrface_format", row=1, column=0, font=get_font("default"))
 
     emb_interface_options = ["DeepSeek", "OpenAI", "Azure OpenAI", "Gemini", "Ollama", "ML Studio","SiliconFlow"]
 
-    emb_interface_dropdown = ctk.CTkOptionMenu(self.embeddings_config_tab, values=emb_interface_options, variable=self.embedding_interface_format_var, command=on_embedding_interface_changed, font=("Microsoft YaHei", 12))
+    emb_interface_dropdown = ctk.CTkOptionMenu(self.embeddings_config_tab, values=emb_interface_options, variable=self.embedding_interface_format_var, command=on_embedding_interface_changed, font=get_font("default"))
     emb_interface_dropdown.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
 
     # 3) Embedding Base URL
-    create_label_with_help(self, parent=self.embeddings_config_tab, label_text="Embedding Base URL:", tooltip_key="embedding_url", row=2, column=0, font=("Microsoft YaHei", 12))
-    emb_url_entry = ctk.CTkEntry(self.embeddings_config_tab, textvariable=self.embedding_url_var, font=("Microsoft YaHei", 12))
+    create_label_with_help(self, parent=self.embeddings_config_tab, label_text="Embedding Base URL:", tooltip_key="embedding_url", row=2, column=0, font=get_font("default"))
+    emb_url_entry = ctk.CTkEntry(self.embeddings_config_tab, textvariable=self.embedding_url_var, font=get_font("default"))
     emb_url_entry.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
 
     # 4) Embedding Model Name
-    create_label_with_help(self, parent=self.embeddings_config_tab, label_text="Embedding Model Name:", tooltip_key="embedding_model_name", row=3, column=0, font=("Microsoft YaHei", 12))
-    emb_model_name_entry = ctk.CTkEntry(self.embeddings_config_tab, textvariable=self.embedding_model_name_var, font=("Microsoft YaHei", 12))
+    create_label_with_help(self, parent=self.embeddings_config_tab, label_text="Embedding Model Name:", tooltip_key="embedding_model_name", row=3, column=0, font=get_font("default"))
+    emb_model_name_entry = ctk.CTkEntry(self.embeddings_config_tab, textvariable=self.embedding_model_name_var, font=get_font("default"))
     emb_model_name_entry.grid(row=3, column=1, padx=5, pady=5, sticky="nsew")
 
     # 5) Retrieval Top-K
-    create_label_with_help(self, parent=self.embeddings_config_tab, label_text="Retrieval Top-K:", tooltip_key="embedding_retrieval_k", row=4, column=0, font=("Microsoft YaHei", 12))
-    emb_retrieval_k_entry = ctk.CTkEntry(self.embeddings_config_tab, textvariable=self.embedding_retrieval_k_var, font=("Microsoft YaHei", 12))
+    create_label_with_help(self, parent=self.embeddings_config_tab, label_text="Retrieval Top-K:", tooltip_key="embedding_retrieval_k", row=4, column=0, font=get_font("default"))
+    emb_retrieval_k_entry = ctk.CTkEntry(self.embeddings_config_tab, textvariable=self.embedding_retrieval_k_var, font=get_font("default"))
     emb_retrieval_k_entry.grid(row=4, column=1, padx=5, pady=5, sticky="nsew")
 
     # 添加测试按钮
-    test_btn = ctk.CTkButton(self.embeddings_config_tab, text="测试配置", command=self.test_embedding_config, font=("Microsoft YaHei", 12))
+    test_btn = ctk.CTkButton(self.embeddings_config_tab, text="测试配置", command=self.test_embedding_config, font=get_font("default"))
     test_btn.grid(row=5, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 
 def build_config_choose_tab(self):
@@ -553,24 +554,24 @@ def build_config_choose_tab(self):
     self.config_choose.grid_columnconfigure(0, weight=0)
     self.config_choose.grid_columnconfigure(1, weight=1)
     config_choose_options = list(self.loaded_config.get("llm_configs", {}).keys())
-    create_label_with_help(self, parent=self.config_choose, label_text="生成架构所用大模型", tooltip_key="architecture_llm_config", row=0, column=0, font=("Microsoft YaHei", 12))
-    architecture_dropdown = ctk.CTkOptionMenu(self.config_choose, values=config_choose_options, variable=self.architecture_llm_var, font=("Microsoft YaHei", 12))
+    create_label_with_help(self, parent=self.config_choose, label_text="生成架构所用大模型", tooltip_key="architecture_llm_config", row=0, column=0, font=get_font("default"))
+    architecture_dropdown = ctk.CTkOptionMenu(self.config_choose, values=config_choose_options, variable=self.architecture_llm_var, font=get_font("default"))
     architecture_dropdown.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
 
-    create_label_with_help(self, parent=self.config_choose, label_text="生成大目录所用大模型", tooltip_key="chapter_outline_llm_config", row=1, column=0, font=("Microsoft YaHei", 12))
-    chapter_outline_dropdown = ctk.CTkOptionMenu(self.config_choose, values=config_choose_options, variable=self.chapter_outline_llm_var, font=("Microsoft YaHei", 12))
+    create_label_with_help(self, parent=self.config_choose, label_text="生成大目录所用大模型", tooltip_key="chapter_outline_llm_config", row=1, column=0, font=get_font("default"))
+    chapter_outline_dropdown = ctk.CTkOptionMenu(self.config_choose, values=config_choose_options, variable=self.chapter_outline_llm_var, font=get_font("default"))
     chapter_outline_dropdown.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
 
-    create_label_with_help(self, parent=self.config_choose, label_text="生成草稿所用大模型", tooltip_key="prompt_draft_llm_config", row=2, column=0, font=("Microsoft YaHei", 12))
-    prompt_draft_dropdown = ctk.CTkOptionMenu(self.config_choose, values=config_choose_options, variable=self.prompt_draft_llm_var, font=("Microsoft YaHei", 12))
+    create_label_with_help(self, parent=self.config_choose, label_text="生成草稿所用大模型", tooltip_key="prompt_draft_llm_config", row=2, column=0, font=get_font("default"))
+    prompt_draft_dropdown = ctk.CTkOptionMenu(self.config_choose, values=config_choose_options, variable=self.prompt_draft_llm_var, font=get_font("default"))
     prompt_draft_dropdown.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
 
-    create_label_with_help(self, parent=self.config_choose, label_text="定稿章节所用大模型", tooltip_key="final_chapter_llm_config", row=3, column=0, font=("Microsoft YaHei", 12))
-    final_chapter_dropdown = ctk.CTkOptionMenu(self.config_choose, values=config_choose_options, variable=self.final_chapter_llm_var, font=("Microsoft YaHei", 12))
+    create_label_with_help(self, parent=self.config_choose, label_text="定稿章节所用大模型", tooltip_key="final_chapter_llm_config", row=3, column=0, font=get_font("default"))
+    final_chapter_dropdown = ctk.CTkOptionMenu(self.config_choose, values=config_choose_options, variable=self.final_chapter_llm_var, font=get_font("default"))
     final_chapter_dropdown.grid(row=3, column=1, padx=5, pady=5, sticky="nsew")
 
-    create_label_with_help(self, parent=self.config_choose, label_text="一致性审校所用大模型", tooltip_key="consistency_review_llm_config", row=4, column=0, font=("Microsoft YaHei", 12))
-    consistency_review_dropdown = ctk.CTkOptionMenu(self.config_choose, values=config_choose_options, variable=self.consistency_review_llm_var, font=("Microsoft YaHei", 12))
+    create_label_with_help(self, parent=self.config_choose, label_text="一致性审校所用大模型", tooltip_key="consistency_review_llm_config", row=4, column=0, font=get_font("default"))
+    consistency_review_dropdown = ctk.CTkOptionMenu(self.config_choose, values=config_choose_options, variable=self.consistency_review_llm_var, font=get_font("default"))
     consistency_review_dropdown.grid(row=4, column=1, padx=5, pady=5, sticky="nsew")
 
     def save_config_choose():
@@ -601,7 +602,7 @@ def build_config_choose_tab(self):
         self.config_choose, 
         text="保存配置", 
         command=save_config_choose,
-        font=("Microsoft YaHei", 12)
+        font=get_font("default")
     )
     save_btn.grid(row=10, column=0,padx=2, pady=2, sticky="ew")
 
@@ -609,7 +610,7 @@ def build_config_choose_tab(self):
         self.config_choose, 
         text="刷新配置", 
         command=refresh_config_dropdowns,
-        font=("Microsoft YaHei", 12)
+        font=get_font("default")
     )
     refresh_btn.grid(row=10, column=1, padx=2, pady=2, sticky="ew")
 
@@ -636,7 +637,7 @@ def build_proxy_setting_tab(self):
         variable=self.proxy_enabled_var,
         onvalue=True,
         offvalue=False,
-        font=("Microsoft YaHei", 12)
+        font=get_font("default")
     )
     proxy_enabled_switch.grid(row=0, column=1, padx=5, pady=5, sticky="w")
 
@@ -646,7 +647,7 @@ def build_proxy_setting_tab(self):
     proxy_address_entry = ctk.CTkEntry(
         self.proxy_setting_tab,
         textvariable=self.proxy_address_var,
-        font=("Microsoft YaHei", 12)
+        font=get_font("default")
     )
     proxy_address_entry.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
 
@@ -656,7 +657,7 @@ def build_proxy_setting_tab(self):
     proxy_port_entry = ctk.CTkEntry(
         self.proxy_setting_tab,
         textvariable=self.proxy_port_var,
-        font=("Microsoft YaHei", 12)
+        font=get_font("default")
     )
     proxy_port_entry.grid(row=2, column=1, padx=5, pady=5, sticky="nsew")
 
@@ -690,7 +691,7 @@ def build_proxy_setting_tab(self):
         self.proxy_setting_tab,
         text="保存代理设置",
         command=save_proxy_setting,
-        font=("Microsoft YaHei", 12)
+        font=get_font("default")
     )
     save_btn.grid(row=3, column=0, columnspan=2, padx=5, pady=5, sticky="ew")
 

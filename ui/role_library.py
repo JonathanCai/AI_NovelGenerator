@@ -10,8 +10,7 @@ from customtkinter import CTkScrollableFrame, CTkTextbox, END
 from utils import read_file, save_string_to_txt  # 导入 utils 中的函数
 from novel_generator.common import invoke_with_cleaning  # 新增导入
 from prompt_definitions import Character_Import_Prompt
-
-DEFAULT_FONT = ("Microsoft YaHei", 12)
+from ui.font_config import get_font
 
 class RoleLibrary:
     def __init__(self, master, save_path, llm_adapter):  # 新增llm_adapter参数
@@ -70,7 +69,7 @@ class RoleLibrary:
         preview_container.pack(fill="both", expand=True, pady=(5, 0))
 
         self.preview_text = ctk.CTkTextbox(preview_container, wrap="word",
-                                            font=("Microsoft YaHei", 12))
+                                            font=get_font("default"))
         scrollbar = ctk.CTkScrollbar(
             preview_container, command=self.preview_text.yview)
         self.preview_text.configure(yscrollcommand=scrollbar.set)
@@ -87,14 +86,14 @@ class RoleLibrary:
         category_frame.pack(fill="x", padx=5, pady=5)
 
         # 分类选择标签
-        ctk.CTkLabel(category_frame, text="分类选择", font=DEFAULT_FONT).pack(side="left", padx=(0, 5))
+        ctk.CTkLabel(category_frame, text="分类选择", font=get_font("label")).pack(side="left", padx=(0, 5))
 
         # 分类选择框
         self.category_combobox = ctk.CTkComboBox(
             category_frame,
             values=self._get_all_categories(),
             width=200,
-            font=DEFAULT_FONT
+            font=get_font("button")
         )
         self.category_combobox.pack(side="left", padx=0)
 
@@ -104,7 +103,7 @@ class RoleLibrary:
             text="保存分类",
             width=80,
             command=self._move_to_category,
-            font=DEFAULT_FONT
+            font=get_font("button")
         )
         self.save_category_btn.pack(side="left", padx=(0, 5))
 
@@ -115,7 +114,7 @@ class RoleLibrary:
             width=80,
             command=lambda: os.startfile(
                 os.path.join(self.save_path, self.category_combobox.get())),
-            font=DEFAULT_FONT
+            font=get_font("button")
         ).pack(side="left", padx=0)
 
         # 角色名编辑行
@@ -123,7 +122,7 @@ class RoleLibrary:
         name_frame.pack(fill="x", padx=5, pady=5)
 
         # 角色名称标签
-        ctk.CTkLabel(name_frame, text="角色名称", font=DEFAULT_FONT).pack(side="left", padx=(0, 5))
+        ctk.CTkLabel(name_frame, text="角色名称", font=get_font("label")).pack(side="left", padx=(0, 5))
 
         self.role_name_var = tk.StringVar()
         self.role_name_entry = ctk.CTkEntry(
@@ -131,7 +130,7 @@ class RoleLibrary:
             textvariable=self.role_name_var,
             placeholder_text="角色名称",
             width=200,
-            font=DEFAULT_FONT
+            font=get_font("button")
         )
         self.role_name_entry.pack(side="left", padx=0)
 
@@ -140,7 +139,7 @@ class RoleLibrary:
             text="修改",
             width=60,
             command=self._rename_role_file,
-            font=DEFAULT_FONT
+            font=get_font("button")
         ).pack(side="left", padx=(0, 5))
 
         ctk.CTkButton(
@@ -148,7 +147,7 @@ class RoleLibrary:
             text="新增",
             width=60,
             command=lambda: self._create_new_role("全部"),
-            font=DEFAULT_FONT
+            font=get_font("button")
         ).pack(side="left", padx=0)
 
         # 属性编辑区（基础框架）
@@ -161,11 +160,11 @@ class RoleLibrary:
         button_frame.pack(fill="x", padx=5, pady=5)
 
         ctk.CTkButton(button_frame, text="导入角色",
-                      command=self.import_roles, font=DEFAULT_FONT).pack(side="left", padx=5)
+                      command=self.import_roles, font=get_font("button")).pack(side="left", padx=5)
         ctk.CTkButton(button_frame, text="删除",
-                      command=self.delete_current_role, font=DEFAULT_FONT).pack(side="left", padx=5)
+                      command=self.delete_current_role, font=get_font("button")).pack(side="left", padx=5)
         ctk.CTkButton(button_frame, text="保存",
-                      command=self.save_current_role, font=DEFAULT_FONT).pack(side="left", padx=5)
+                      command=self.save_current_role, font=get_font("button")).pack(side="left", padx=5)
 
     def _get_all_categories(self):
         """获取所有有效分类（包括动态更新）"""
@@ -297,7 +296,7 @@ class RoleLibrary:
         right_panel.grid_columnconfigure(0, weight=1)
         
         # 创建初始可编辑文本框
-        text_box = ctk.CTkTextbox(right_panel, wrap="word", font=DEFAULT_FONT)
+        text_box = ctk.CTkTextbox(right_panel, wrap="word", font=get_font("button"))
         text_box.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
         text_box.configure(state="normal")  # 保持可编辑状态
 
@@ -314,7 +313,7 @@ class RoleLibrary:
             text="导入临时角色库",
             width=120,
             command=lambda: self.confirm_import(import_window),
-            font=DEFAULT_FONT
+            font=get_font("button")
         ).pack(side="left", padx=10)
 
         # 分析文件按钮
@@ -323,7 +322,7 @@ class RoleLibrary:
             text="分析文件",
             width=100,
             command=lambda: self.analyze_character_state(right_panel, left_panel),
-            font=DEFAULT_FONT
+            font=get_font("button")
         ).pack(side="left", padx=10)
 
         # 加载character_state.txt按钮
@@ -332,7 +331,7 @@ class RoleLibrary:
             text="加载character_state.txt",
             width=160,
             command=lambda: self.load_default_character_state(right_panel),
-            font=DEFAULT_FONT
+            font=get_font("button")
         ).pack(side="right", padx=10)
 
         # 从文件导入按钮
@@ -341,7 +340,7 @@ class RoleLibrary:
             text="从文件导入",
             width=100,
             command=lambda: self.import_from_file(right_panel),
-            font=DEFAULT_FONT
+            font=get_font("button")
         ).pack(side="right", padx=10)
 
         # 设置内容区权重
@@ -419,18 +418,18 @@ class RoleLibrary:
                 
                 # 勾选框
                 var = BooleanVar(value=True)
-                cb = ctk.CTkCheckBox(frame, text="", variable=var, width=20, font=DEFAULT_FONT)
+                cb = ctk.CTkCheckBox(frame, text="", variable=var, width=20, font=get_font("button"))
                 cb.pack(side="left", padx=5)
                 
                 # 角色名称
                 lbl = ctk.CTkLabel(frame, text=role_name, 
-                                 font=("Microsoft YaHei", 12))
+                                 font=get_font("default"))
                 lbl.pack(side="left", padx=5)
                 
                 # 属性摘要
                 attrs = [f"{k}({len(v)})" for k,v in attributes.items()]
                 summary = ctk.CTkLabel(frame, text=" | ".join(attrs), 
-                                     font=("Microsoft YaHei", 12),
+                                     font=get_font("default"),
                                      text_color="gray")
                 summary.pack(side="right", padx=10)
                 
@@ -443,9 +442,9 @@ class RoleLibrary:
         btn_frame = ctk.CTkFrame(scroll_frame)
         btn_frame.pack(fill="x", pady=5)
         ctk.CTkButton(btn_frame, text="全选", 
-                     command=lambda: self._toggle_all(True), font=DEFAULT_FONT).pack(side="left")
+                     command=lambda: self._toggle_all(True), font=get_font("button")).pack(side="left")
         ctk.CTkButton(btn_frame, text="取消选择", 
-                     command=lambda: self._toggle_all(False), font=DEFAULT_FONT).pack(side="left")
+                     command=lambda: self._toggle_all(False), font=get_font("button")).pack(side="left")
 
     def _parse_temp_role_file(self, file_path):
         """解析临时角色文件"""
@@ -545,18 +544,18 @@ class RoleLibrary:
             
             # 勾选框
             var = BooleanVar(value=True)
-            cb = ctk.CTkCheckBox(frame, text="", variable=var, width=20, font=DEFAULT_FONT)
+            cb = ctk.CTkCheckBox(frame, text="", variable=var, width=20, font=get_font("button"))
             cb.pack(side="left", padx=5)
             
             # 角色名称标签
             lbl = ctk.CTkLabel(frame, text=role['name'], 
-                             font=("Microsoft YaHei", 12))
+                             font=get_font("default"))
             lbl.pack(side="left", padx=5)
             
             # 属性摘要
             attrs = [f"{k}({len(v)})" for k,v in role['attributes'].items()]
             summary = ctk.CTkLabel(frame, text=" | ".join(attrs), 
-                                 font=("Microsoft YaHei", 12),
+                                 font=get_font("default"),
                                  text_color="gray")
             summary.pack(side="right", padx=10)
             
@@ -570,9 +569,9 @@ class RoleLibrary:
         btn_frame.pack(fill="x", pady=5)
         
         ctk.CTkButton(btn_frame, text="全选", 
-                     command=lambda: self._toggle_all(True), font=DEFAULT_FONT).pack(side="left")
+                     command=lambda: self._toggle_all(True), font=get_font("button")).pack(side="left")
         ctk.CTkButton(btn_frame, text="反选", 
-                     command=lambda: self._toggle_all(False), font=DEFAULT_FONT).pack(side="left")
+                     command=lambda: self._toggle_all(False), font=get_font("button")).pack(side="left")
 
     def _toggle_all(self, select):
         """全选/反选操作"""
@@ -650,7 +649,7 @@ class RoleLibrary:
                     break
             
             if not text_box:
-                text_box = ctk.CTkTextbox(right_panel, wrap="word", font=DEFAULT_FONT)
+                text_box = ctk.CTkTextbox(right_panel, wrap="word", font=get_font("button"))
                 text_box.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
             
             text_box.configure(state="normal")
@@ -683,8 +682,8 @@ class RoleLibrary:
                 error_window.grab_set()
                 
                 # 窗口内容
-                ctk.CTkLabel(error_window, text="请至少选择一个角色", font=DEFAULT_FONT).pack(padx=20, pady=10)
-                ctk.CTkButton(error_window, text="确定", command=error_window.destroy, font=DEFAULT_FONT).pack(pady=10)
+                ctk.CTkLabel(error_window, text="请至少选择一个角色", font=get_font("button")).pack(padx=20, pady=10)
+                ctk.CTkButton(error_window, text="确定", command=error_window.destroy, font=get_font("button")).pack(pady=10)
                 
                 # 窗口居中
                 error_window.update_idletasks()
@@ -1004,12 +1003,12 @@ class RoleLibrary:
         # 操作提示
         ctk.CTkLabel(category_frame,
                      text="右键分类名即可重命名",
-                     font=DEFAULT_FONT,
+                     font=get_font("button"),
                      text_color="gray").pack(side="top", anchor="w", padx=5)
 
         # 固定按钮
         ctk.CTkButton(category_frame, text="全部", width=50,
-                      font=("Microsoft YaHei", 12),
+                      font=get_font("default"),
                       command=lambda: self.show_category("全部")).pack(side="left", padx=2)
 
         # 滚动分类区
@@ -1019,9 +1018,9 @@ class RoleLibrary:
 
         # 操作按钮
         ctk.CTkButton(category_frame, text="新增", width=50,
-                      command=self.add_category, font=DEFAULT_FONT).pack(side="right", padx=2)
+                      command=self.add_category, font=get_font("button")).pack(side="right", padx=2)
         ctk.CTkButton(category_frame, text="删除", width=50,
-                      command=self.delete_category, font=DEFAULT_FONT).pack(side="right", padx=2)
+                      command=self.delete_category, font=get_font("button")).pack(side="right", padx=2)
 
         self.load_categories()
 
@@ -1047,7 +1046,7 @@ class RoleLibrary:
                       if os.path.isdir(os.path.join(self.save_path, d)) and d != "全部"]
 
         for category in categories:
-            btn = ctk.CTkButton(self.scroll_frame, text=category, width=80, font=DEFAULT_FONT)
+            btn = ctk.CTkButton(self.scroll_frame, text=category, width=80, font=get_font("button"))
             btn.bind("<Button-1>", lambda e, c=category: self.show_category(c))
             btn.bind("<Button-3>", lambda e, c=category: self.rename_category(c))
             btn.pack(side="left", padx=2)
@@ -1094,7 +1093,7 @@ class RoleLibrary:
 
         for cat in categories:
             var = tk.BooleanVar()
-            chk = ctk.CTkCheckBox(scroll_frame, text=cat, variable=var, font=DEFAULT_FONT)
+            chk = ctk.CTkCheckBox(scroll_frame, text=cat, variable=var, font=get_font("button"))
             chk.pack(anchor="w")
             self.selected_del.append((cat, var))
 
@@ -1103,9 +1102,9 @@ class RoleLibrary:
         btn_frame.pack(fill="x", pady=5)
 
         ctk.CTkButton(btn_frame, text="删除选中",
-                      command=lambda: self.confirm_delete(del_window), font=DEFAULT_FONT).pack(side="left", padx=5)
+                      command=lambda: self.confirm_delete(del_window), font=get_font("button")).pack(side="left", padx=5)
         ctk.CTkButton(btn_frame, text="取消",
-                      command=del_window.destroy, font=DEFAULT_FONT).pack(side="right", padx=5)
+                      command=del_window.destroy, font=get_font("button")).pack(side="right", padx=5)
 
         self.category_combobox.configure(values=self._get_all_categories())
         self.category_combobox.set("全部")
@@ -1134,7 +1133,7 @@ class RoleLibrary:
         y = self.window.winfo_y() + (self.window.winfo_height() - c_height) // 2
         choice_window.geometry(f"+{x}+{y}")
 
-        ctk.CTkLabel(choice_window, text="请选择删除方式：", font=DEFAULT_FONT).pack(pady=10)
+        ctk.CTkLabel(choice_window, text="请选择删除方式：", font=get_font("button")).pack(pady=10)
         btn_frame = ctk.CTkFrame(choice_window)
         btn_frame.pack(pady=10)
 
@@ -1160,9 +1159,9 @@ class RoleLibrary:
             choice_window.destroy()
 
         ctk.CTkButton(btn_frame, text="全部删除",
-                      command=lambda: perform_delete("all"), font=DEFAULT_FONT).pack(side="left", padx=5)
+                      command=lambda: perform_delete("all"), font=get_font("button")).pack(side="left", padx=5)
         ctk.CTkButton(btn_frame, text="移动角色",
-                      command=lambda: perform_delete("move"), font=DEFAULT_FONT).pack(side="left", padx=5)
+                      command=lambda: perform_delete("move"), font=get_font("button")).pack(side="left", padx=5)
 
     def count_roles(self, categories):
         """统计角色数量"""
@@ -1201,7 +1200,7 @@ class RoleLibrary:
                                     self.role_list_frame,
                                     text=role_name,
                                     command=lambda r=role_name: self.show_role(r),
-                                    font=DEFAULT_FONT
+                                    font=get_font("button")
                                 )
                                 btn.pack(fill="x", pady=2)
                 except FileNotFoundError:
@@ -1217,7 +1216,7 @@ class RoleLibrary:
                             self.role_list_frame,
                             text=role_name,
                             command=lambda r=role_name: self.show_role(r),
-                            font=DEFAULT_FONT
+                            font=get_font("button")
                         )
                         btn.pack(fill="x", pady=2)
             except FileNotFoundError:
@@ -1326,7 +1325,7 @@ class RoleLibrary:
         attribute_block.grid_columnconfigure(1, weight=1)  # 设置第二列权重
 
         # 属性名称标签
-        label = ctk.CTkLabel(attribute_block, text=attr_name, font=DEFAULT_FONT)
+        label = ctk.CTkLabel(attribute_block, text=attr_name, font=get_font("button"))
         label.grid(row=0, column=0, sticky="w", padx=(5, 10), pady=2)
 
         # 第一个条目和“增加”按钮的容器
@@ -1335,7 +1334,7 @@ class RoleLibrary:
         first_item_frame.grid_columnconfigure(0, weight=1)
 
         # 第一个条目输入框
-        first_entry = ctk.CTkEntry(first_item_frame, font=DEFAULT_FONT)
+        first_entry = ctk.CTkEntry(first_item_frame, font=get_font("button"))
         first_entry.grid(row=0, column=0, sticky="ew", padx=(0, 5), ipadx=5, ipady=3)
         if items:
             first_entry.insert(0, items[0])  # 填充第一个条目的内容
@@ -1350,7 +1349,7 @@ class RoleLibrary:
             text="+",
             width=30,
             command=lambda: self._add_item(attr_name),
-            font=DEFAULT_FONT
+            font=get_font("button")
         )
         add_button.grid(row=0, column=0)
 
@@ -1383,7 +1382,7 @@ class RoleLibrary:
         item_frame.grid_columnconfigure(0, weight=1)
 
         # 条目输入框
-        new_entry = ctk.CTkEntry(item_frame, font=DEFAULT_FONT)
+        new_entry = ctk.CTkEntry(item_frame, font=get_font("button"))
         new_entry.grid(row=0, column=0, sticky="ew", padx=(0, 5), ipadx=5, ipady=3)
         new_entry.insert(0, initial_text)  # 设置初始文本
 
@@ -1396,7 +1395,7 @@ class RoleLibrary:
             text="-",
             width=30,
             command=lambda f=item_frame: self._remove_item(f, attr_name),
-            font=DEFAULT_FONT
+            font=get_font("button")
         )
         del_button.grid(row=0, column=0)
 
@@ -1488,15 +1487,15 @@ class RoleLibrary:
 
         # 顶部提示
         ctk.CTkLabel(content_frame, text=f"当前分类：{old_name}", 
-                    font=DEFAULT_FONT).pack(pady=(10, 5))
+                    font=get_font("button")).pack(pady=(10, 5))
 
         # 输入框
         input_frame = ctk.CTkFrame(content_frame)
         input_frame.pack(fill="x", pady=5)
         ctk.CTkLabel(input_frame, text="新名称：", 
-                    font=DEFAULT_FONT).pack(side="left", padx=5)
+                    font=get_font("button")).pack(side="left", padx=5)
         name_var = tk.StringVar()
-        name_entry = ctk.CTkEntry(input_frame, textvariable=name_var, width=150, font=DEFAULT_FONT)
+        name_entry = ctk.CTkEntry(input_frame, textvariable=name_var, width=150, font=get_font("button"))
         name_entry.pack(side="left", padx=5)
 
         # 按钮区
@@ -1529,9 +1528,9 @@ class RoleLibrary:
                 messagebox.showerror("错误", f"重命名失败：{str(e)}", parent=self.window)
 
         ctk.CTkButton(button_frame, text="确认",
-                      command=confirm_rename, font=DEFAULT_FONT).pack(side="left", padx=10)
+                      command=confirm_rename, font=get_font("button")).pack(side="left", padx=10)
         ctk.CTkButton(button_frame, text="取消",
-                      command=dialog.destroy, font=DEFAULT_FONT).pack(side="right", padx=10)
+                      command=dialog.destroy, font=get_font("button")).pack(side="right", padx=10)
 
         # 窗口居中
         dialog.update_idletasks()

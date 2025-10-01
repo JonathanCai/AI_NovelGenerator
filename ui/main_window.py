@@ -18,6 +18,7 @@ from ui.context_menu import TextWidgetContextMenu
 from ui.main_tab import build_main_tab, build_left_layout, build_right_layout
 from ui.config_tab import build_config_tabview, load_config_btn, save_config_btn
 from ui.novel_params_tab import build_novel_params_area, build_optional_buttons_area
+from ui.font_config import configure_customtkinter_fonts, get_font
 from ui.generation_handlers import (
     generate_novel_architecture_ui,
     generate_chapter_blueprint_ui,
@@ -41,62 +42,165 @@ class NovelGeneratorGUI:
     """
     小说生成器的主GUI类，包含所有的界面布局、事件处理、与后端逻辑的交互等。
     """
+
+    def _safe_load_config(self) -> dict:
+        """安全加载配置文件"""
+        try:
+            return load_config(self.config_file)
+        except Exception as e:
+            logging.error(f"加载配置文件失败: {e}")
+            messagebox.showerror("配置错误", f"无法加载配置文件: {e}\n将使用默认配置。")
+            return {}
+
+    def _get_llm_config(self) -> tuple:
+        """安全获取LLM配置"""
+        try:
+            if not self.loaded_config or "llm_configs" not in self.loaded_config:
+                return "OpenAI", self._get_default_llm_config()
+
+            llm_configs = self.loaded_config["llm_configs"]
+            if not llm_configs or not isinstance(llm_configs, dict):
+                return "OpenAI", self._get_default_llm_config()
+
+            # 获取第一个配置
+            first_config_name = next(iter(llm_configs))
+            llm_config = llm_configs[first_config_name]
+
+            if not isinstance(llm_config, dict):
+                return "OpenAI", self._get_default_llm_config()
+
+            return llm_config.get("interface_format", "OpenAI"), llm_config
+
+        except Exception as e:
+            logging.error(f"获取LLM配置失败: {e}")
+            return "OpenAI", self._get_default_llm_config()
+
+    def _get_default_llm_config(self) -> dict:
+        """获取默认LLM配置"""
+        return {
+            "api_key": "",
+            "base_url": "https://api.openai.com/v1",
+            "model_name": "gpt-4o-mini",
+            "temperature": 0.7,
+            "max_tokens": 8192,
+            "timeout": 600,
+            "interface_format": "OpenAI"
+        }
+
+    def _get_embedding_config(self) -> tuple:
+        """安全获取Embedding配置"""
+        try:
+            if not self.loaded_config:
+                return "OpenAI", self._get_default_embedding_config()
+
+            last_embedding = self.loaded_config.get("last_embedding_interface_format", "OpenAI")
+            embedding_configs = self.loaded_config.get("embedding_configs", {})
+
+            if not embedding_configs or not isinstance(embedding_configs, dict):
+                return "OpenAI", self._get_default_embedding_config()
+
+            emb_config = embedding_configs.get(last_embedding)
+            if not emb_config or not isinstance(emb_config, dict):
+                return "OpenAI", self._get_default_embedding_config()
+
+            return last_embedding, emb_config
+
+        except Exception as e:
+            logging.error(f"获取Embedding配置失败: {e}")
+            return "OpenAI", self._get_default_embedding_config()
+
+    def _get_default_embedding_config(self) -> dict:
+        """获取默认Embedding配置"""
+        return {
+            "api_key": "",
+            "base_url": "https://api.openai.com/v1",
+            "model_name": "text-embedding-ada-002",
+            "retrieval_k": 4
+        }
+
+    def _get_choose_configs(self) -> dict:
+        """安全获取选择配置"""
+        try:
+            if not self.loaded_config:
+                return self._get_default_choose_configs()
+
+            choose_configs = self.loaded_config.get("choose_configs", {})
+            if not choose_configs or not isinstance(choose_configs, dict):
+                return self._get_default_choose_configs()
+
+            return choose_configs
+
+        except Exception as e:
+            logging.error(f"获取选择配置失败: {e}")
+            return self._get_default_choose_configs()
+
+    def _get_default_choose_configs(self) -> dict:
+        """获取默认选择配置"""
+        return {
+            "prompt_draft_llm": "DeepSeek V3",
+            "chapter_outline_llm": "DeepSeek V3",
+            "architecture_llm": "DeepSeek V3",
+            "final_chapter_llm": "DeepSeek V3",
+            "consistency_review_llm": "DeepSeek V3"
+        }
+
+    def _setup_proxy(self) -> None:
+        """安全设置代理"""
+        try:
+            if not self.loaded_config or "proxy_setting" not in self.loaded_config:
+                return
+
+            proxy_setting = self.loaded_config["proxy_setting"]
+            if not proxy_setting or not isinstance(proxy_setting, dict):
+                return
+
+            if proxy_setting.get("enabled", False):
+                proxy_url = proxy_setting.get("proxy_url", "").strip()
+                proxy_port = str(proxy_setting.get("proxy_port", "")).strip()
+
+                if proxy_url and proxy_port:
+                    proxy = f"http://{proxy_url}:{proxy_port}"
+                    os.environ['HTTP_PROXY'] = proxy
+                    os.environ['HTTPS_PROXY'] = proxy
+                    logging.info(f"已设置代理: {proxy}")
+                else:
+                    logging.warning("代理配置不完整，URL或端口为空")
+            else:
+                # 清除代理设置
+                os.environ.pop('HTTP_PROXY', None)
+                os.environ.pop('HTTPS_PROXY', None)
+                logging.info("代理已禁用")
+
+        except Exception as e:
+            logging.error(f"设置代理失败: {e}")
+
     def __init__(self, master):
         self.master = master
         self.master.title("Novel Generator GUI")
+
+        # 配置字体设置
+        configure_customtkinter_fonts()
+
+        # 设置图标，增加更好的错误处理
         try:
             if os.path.exists("icon.ico"):
                 self.master.iconbitmap("icon.ico")
-        except Exception:
-            pass
+        except Exception as e:
+            logging.warning(f"无法加载图标文件: {e}")
+
         self.master.geometry("1350x840")
 
         # --------------- 配置文件路径 ---------------
         self.config_file = "config.json"
-        self.loaded_config = load_config(self.config_file)
+        self.loaded_config = self._safe_load_config()
 
-        if self.loaded_config:
-            last_llm = next(iter(self.loaded_config["llm_configs"].values())).get("interface_format", "OpenAI")
+        # 安全地获取配置值
+        last_llm, llm_conf = self._get_llm_config()
+        last_embedding, emb_conf = self._get_embedding_config()
+        choose_configs = self._get_choose_configs()
 
-            last_embedding = self.loaded_config.get("last_embedding_interface_format", "OpenAI")
-        else:
-            last_llm = "OpenAI"
-            last_embedding = "OpenAI"
-
-        # if self.loaded_config and "llm_configs" in self.loaded_config and last_llm in self.loaded_config["llm_configs"]:
-        #     llm_conf = next(iter(self.loaded_config["llm_configs"]))
-        # else:
-        #     llm_conf = {
-        #         "api_key": "",
-        #         "base_url": "https://api.openai.com/v1",
-        #         "model_name": "gpt-4o-mini",
-        #         "temperature": 0.7,
-        #         "max_tokens": 8192,
-        #         "timeout": 600
-        #     }
-        llm_conf = next(iter(self.loaded_config["llm_configs"].values()))
-        choose_configs = self.loaded_config.get("choose_configs", {})
-
-
-        if self.loaded_config and "embedding_configs" in self.loaded_config and last_embedding in self.loaded_config["embedding_configs"]:
-            emb_conf = self.loaded_config["embedding_configs"][last_embedding]
-        else:
-            emb_conf = {
-                "api_key": "",
-                "base_url": "https://api.openai.com/v1",
-                "model_name": "text-embedding-ada-002",
-                "retrieval_k": 4
-            }
-
-        # PenBo 增加代理功能支持
-        proxy_url = self.loaded_config["proxy_setting"]["proxy_url"]
-        proxy_port = self.loaded_config["proxy_setting"]["proxy_port"]
-        if self.loaded_config["proxy_setting"]["enabled"]:
-            os.environ['HTTP_PROXY'] = f"http://{proxy_url}:{proxy_port}"
-            os.environ['HTTPS_PROXY'] = f"http://{proxy_url}:{proxy_port}"
-        else:
-            os.environ.pop('HTTP_PROXY', None)  
-            os.environ.pop('HTTPS_PROXY', None)
+        # 设置代理（安全处理）
+        self._setup_proxy()
 
 
 
@@ -109,7 +213,18 @@ class NovelGeneratorGUI:
         self.temperature_var = ctk.DoubleVar(value=llm_conf.get("temperature", 0.7))
         self.max_tokens_var = ctk.IntVar(value=llm_conf.get("max_tokens", 8192))
         self.timeout_var = ctk.IntVar(value=llm_conf.get("timeout", 600))
-        self.interface_config_var = ctk.StringVar(value=next(iter(self.loaded_config["llm_configs"])))
+              # 安全地获取第一个LLM配置名称
+        first_llm_name = "DeepSeek V3"  # 默认值
+        try:
+            if (self.loaded_config and
+                "llm_configs" in self.loaded_config and
+                isinstance(self.loaded_config["llm_configs"], dict) and
+                self.loaded_config["llm_configs"]):
+                first_llm_name = next(iter(self.loaded_config["llm_configs"]))
+        except Exception as e:
+            logging.error(f"获取LLM配置名称失败: {e}")
+
+        self.interface_config_var = ctk.StringVar(value=first_llm_name)
 
 
 
@@ -186,18 +301,43 @@ class NovelGeneratorGUI:
         messagebox.showinfo("参数说明", info_text)
 
     def safe_get_int(self, var, default=1):
+        """安全地获取整数值，带有类型验证"""
         try:
             val_str = str(var.get()).strip()
+            if not val_str:
+                var.set(str(default))
+                return default
             return int(val_str)
-        except:
+        except (ValueError, TypeError, AttributeError) as e:
+            logging.warning(f"获取整数值失败，使用默认值 {default}: {e}")
+            var.set(str(default))
+            return default
+
+    def safe_get_float(self, var, default=0.7):
+        """安全地获取浮点数值，带有类型验证"""
+        try:
+            val_str = str(var.get()).strip()
+            if not val_str:
+                var.set(str(default))
+                return default
+            return float(val_str)
+        except (ValueError, TypeError, AttributeError) as e:
+            logging.warning(f"获取浮点数值失败，使用默认值 {default}: {e}")
             var.set(str(default))
             return default
 
     def log(self, message: str):
-        self.log_text.configure(state="normal")
-        self.log_text.insert("end", message + "\n")
-        self.log_text.see("end")
-        self.log_text.configure(state="disabled")
+        """日志输出，带有异常处理"""
+        try:
+            if hasattr(self, 'log_text') and self.log_text.winfo_exists():
+                self.log_text.configure(state="normal")
+                self.log_text.insert("end", message + "\n")
+                self.log_text.see("end")
+                self.log_text.configure(state="disabled")
+            else:
+                print(message)  # 备用输出
+        except Exception as e:
+            print(f"日志输出失败: {e}\n原消息: {message}")
 
     def safe_log(self, message: str):
         self.master.after(0, lambda: self.log(message))
@@ -300,8 +440,8 @@ class NovelGeneratorGUI:
                     category_frame.grid(row=current_row, column=0, sticky="w", pady=(10,5), padx=5)
                     
                     # 添加分类标签
-                    category_label = ctk.CTkLabel(category_frame, text=f"【{category}】", 
-                                                font=("Microsoft YaHei", 12, "bold"))
+                    category_label = ctk.CTkLabel(category_frame, text=f"【{category}】",
+                                                font=get_font("large_bold"))
                     category_label.grid(row=0, column=0, padx=(0,10), sticky="w")
                     
                     # 初始化角色排列参数

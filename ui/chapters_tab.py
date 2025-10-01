@@ -5,6 +5,7 @@ import customtkinter as ctk
 from tkinter import messagebox
 from ui.context_menu import TextWidgetContextMenu
 from utils import read_file, save_string_to_txt, clear_file_content
+from ui.font_config import get_font
 
 def build_chapters_tab(self):
     self.chapters_view_tab = self.tabview.add("Chapters Manage")
@@ -20,26 +21,26 @@ def build_chapters_tab(self):
     top_frame.columnconfigure(3, weight=0)
     top_frame.columnconfigure(4, weight=1)
 
-    prev_btn = ctk.CTkButton(top_frame, text="<< 上一章", command=self.prev_chapter, font=("Microsoft YaHei", 12))
+    prev_btn = ctk.CTkButton(top_frame, text="<< 上一章", command=self.prev_chapter, font=get_font("button"))
     prev_btn.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
-    next_btn = ctk.CTkButton(top_frame, text="下一章 >>", command=self.next_chapter, font=("Microsoft YaHei", 12))
+    next_btn = ctk.CTkButton(top_frame, text="下一章 >>", command=self.next_chapter, font=get_font("button"))
     next_btn.grid(row=0, column=1, padx=5, pady=5, sticky="w")
 
     self.chapter_select_var = ctk.StringVar(value="")
-    self.chapter_select_menu = ctk.CTkOptionMenu(top_frame, values=[], variable=self.chapter_select_var, command=self.on_chapter_selected, font=("Microsoft YaHei", 12))
+    self.chapter_select_menu = ctk.CTkOptionMenu(top_frame, values=[], variable=self.chapter_select_var, command=self.on_chapter_selected, font=get_font("button"))
     self.chapter_select_menu.grid(row=0, column=2, padx=5, pady=5, sticky="w")
 
-    save_btn = ctk.CTkButton(top_frame, text="保存修改", command=self.save_current_chapter, font=("Microsoft YaHei", 12))
+    save_btn = ctk.CTkButton(top_frame, text="保存修改", command=self.save_current_chapter, font=get_font("button"))
     save_btn.grid(row=0, column=3, padx=5, pady=5, sticky="w")
 
-    refresh_btn = ctk.CTkButton(top_frame, text="刷新章节列表", command=self.refresh_chapters_list, font=("Microsoft YaHei", 12))
+    refresh_btn = ctk.CTkButton(top_frame, text="刷新章节列表", command=self.refresh_chapters_list, font=get_font("button"))
     refresh_btn.grid(row=0, column=5, padx=5, pady=5, sticky="e")
 
-    self.chapters_word_count_label = ctk.CTkLabel(top_frame, text="字数：0", font=("Microsoft YaHei", 12))
+    self.chapters_word_count_label = ctk.CTkLabel(top_frame, text="字数：0", font=get_font("button"))
     self.chapters_word_count_label.grid(row=0, column=4, padx=(0,10), sticky="e")
 
-    self.chapter_view_text = ctk.CTkTextbox(self.chapters_view_tab, wrap="word", font=("Microsoft YaHei", 12))
+    self.chapter_view_text = ctk.CTkTextbox(self.chapters_view_tab, wrap="word", font=get_font("button"))
     
     def update_word_count(event=None):
         text = self.chapter_view_text.get("0.0", "end-1c")

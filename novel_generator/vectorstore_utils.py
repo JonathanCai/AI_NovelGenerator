@@ -12,7 +12,26 @@ import re
 import ssl
 import requests
 import warnings
-from langchain_chroma import Chroma
+# 尝试导入向量存储相关包
+CHROMA_AVAILABLE = False
+Chroma = None
+
+try:
+    from langchain_chroma import Chroma
+    CHROMA_AVAILABLE = True
+except ImportError:
+    try:
+        # 尝试从chromadb导入
+        import chromadb
+        from langchain.vectorstores import Chroma
+        CHROMA_AVAILABLE = True
+    except ImportError:
+        logging.warning(
+            "向量存储功能不可用：未找到 langchain-chroma 或 chromadb。\n"
+            "如需使用向量存储功能，请运行：pip install langchain-chroma\n"
+            "程序将在无向量存储的情况下继续运行。"
+        )
+        CHROMA_AVAILABLE = False
 logging.basicConfig(
     filename='app.log',      # 日志文件名
     filemode='a',            # 追加模式（'w' 会覆盖）
@@ -24,9 +43,26 @@ logging.basicConfig(
 warnings.filterwarnings('ignore', message='.*Torch was not compiled with flash attention.*')
 os.environ["TOKENIZERS_PARALLELISM"] = "false"  # 禁用tokenizer并行警告
 
-from chromadb.config import Settings
+# 只在Chroma可用时导入相关模块
+if CHROMA_AVAILABLE:
+    try:
+        from chromadb.config import Settings
+    except ImportError:
+        # 如果chromadb.config不可用，尝试其他导入方式
+        try:
+            Settings = None  # 使用默认设置
+        except Exception:
+            Settings = None
 from langchain.docstore.document import Document
-from sklearn.metrics.pairwise import cosine_similarity
+
+# 可选导入sklearn
+try:
+    from sklearn.metrics.pairwise import cosine_similarity
+    SKLEARN_AVAILABLE = True
+except ImportError:
+    SKLEARN_AVAILABLE = False
+    cosine_similarity = None
+
 from .common import call_with_retry
 
 def get_vectorstore_dir(filepath: str) -> str:
@@ -34,7 +70,7 @@ def get_vectorstore_dir(filepath: str) -> str:
     return os.path.join(filepath, "vectorstore")
 
 def clear_vector_store(filepath: str) -> bool:
-    """清空 清空向量库"""
+    """清空向量库。如果Chroma不可用，返回False"""
     import shutil
     store_dir = get_vectorstore_dir(filepath)
     if not os.path.exists(store_dir):
@@ -52,8 +88,11 @@ def clear_vector_store(filepath: str) -> bool:
 def init_vector_store(embedding_adapter, texts, filepath: str):
     """
     在 filepath 下创建/加载一个 Chroma 向量库并插入 texts。
-    如果Embedding失败，则返回 None，不中断任务。
+    如果Embedding失败或Chroma不可用，则返回 None，不中断任务。
     """
+    if not CHROMA_AVAILABLE:
+        logging.warning("向量存储功能不可用，跳过向量存储初始化")
+        return None
     from langchain.embeddings.base import Embeddings as LCEmbeddings
 
     store_dir = get_vectorstore_dir(filepath)
@@ -95,8 +134,11 @@ def init_vector_store(embedding_adapter, texts, filepath: str):
 def load_vector_store(embedding_adapter, filepath: str):
     """
     读取已存在的 Chroma 向量库。若不存在则返回 None。
-    如果加载失败（embedding 或IO问题），则返回 None。
+    如果加载失败（embedding 或IO问题）或Chroma不可用，则返回 None。
     """
+    if not CHROMA_AVAILABLE:
+        logging.warning("向量存储功能不可用，无法加载向量库")
+        return None
     from langchain.embeddings.base import Embeddings as LCEmbeddings
     store_dir = get_vectorstore_dir(filepath)
     if not os.path.exists(store_dir):
@@ -182,8 +224,11 @@ def split_text_for_vectorstore(chapter_text: str, max_length: int = 500, similar
 def update_vector_store(embedding_adapter, new_chapter: str, filepath: str):
     """
     将最新章节文本插入到向量库中。
-    若库不存在则初始化；若初始化/更新失败，则跳过。
+    若库不存在则初始化；若初始化/更新失败或Chroma不可用，则跳过。
     """
+    if not CHROMA_AVAILABLE:
+        logging.warning("向量存储功能不可用，跳过向量库更新")
+        return
     from utils import read_file, clear_file_content, save_string_to_txt
     splitted_texts = split_text_for_vectorstore(new_chapter)
     if not splitted_texts:
@@ -211,9 +256,12 @@ def update_vector_store(embedding_adapter, new_chapter: str, filepath: str):
 def get_relevant_context_from_vector_store(embedding_adapter, query: str, filepath: str, k: int = 2) -> str:
     """
     从向量库中检索与 query 最相关的 k 条文本，拼接后返回。
-    如果向量库加载/检索失败，则返回空字符串。
+    如果向量库加载/检索失败或Chroma不可用，则返回空字符串。
     最终只返回最多2000字符的检索片段。
     """
+    if not CHROMA_AVAILABLE:
+        logging.warning("向量存储功能不可用，返回空上下文")
+        return ""
     store = load_vector_store(embedding_adapter, filepath)
     if not store:
         logging.info("No vector store found or load failed. Returning empty context.")
